@@ -54,14 +54,14 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             Argument.AssertNotNull(connectorId, nameof(connectorId));
 
             ConnectorId = connectorId;
-            SolutionTypes = new ChangeTrackingList<SolutionTypeSettings>();
+            SolutionTypes = new ChangeTrackingList<PublicCloudConnectorSolutionTypeSettings>();
         }
 
         /// <summary> Initializes a new instance of <see cref="GenerateAwsTemplateContent"/>. </summary>
         /// <param name="connectorId"> The name of public cloud connector. </param>
         /// <param name="solutionTypes"> The list of solution types and their settings. </param>
         /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
-        internal GenerateAwsTemplateContent(ResourceIdentifier connectorId, IList<SolutionTypeSettings> solutionTypes, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal GenerateAwsTemplateContent(ResourceIdentifier connectorId, IList<PublicCloudConnectorSolutionTypeSettings> solutionTypes, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             ConnectorId = connectorId;
             SolutionTypes = solutionTypes;
@@ -76,6 +76,6 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
         /// <summary> The name of public cloud connector. </summary>
         public ResourceIdentifier ConnectorId { get; }
         /// <summary> The list of solution types and their settings. </summary>
-        public IList<SolutionTypeSettings> SolutionTypes { get; }
+        public IList<PublicCloudConnectorSolutionTypeSettings> SolutionTypes { get; }
     }
 }

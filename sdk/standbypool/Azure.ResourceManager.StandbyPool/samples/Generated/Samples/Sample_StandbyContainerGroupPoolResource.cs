@@ -9,7 +9,6 @@ using System;
 using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Identity;
-using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Azure.ResourceManager.StandbyPool.Models;
 using NUnit.Framework;
@@ -22,7 +21,7 @@ namespace Azure.ResourceManager.StandbyPool.Samples
         [Ignore("Only validating compilation of examples")]
         public async Task Get_StandbyContainerGroupPoolsGet()
         {
-            // Generated from example definition: 2024-03-01/StandbyContainerGroupPools_Get.json
+            // Generated from example definition: 2025-03-01/StandbyContainerGroupPools_Get.json
             // this example is just showing the usage of "StandbyContainerGroupPoolResource_Get" operation, for the dependent resources, they will have to be created separately.
 
             // get your azure access token, for more details of how Azure SDK get your access token, please refer to https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication?tabs=command-line
@@ -52,7 +51,7 @@ namespace Azure.ResourceManager.StandbyPool.Samples
         [Ignore("Only validating compilation of examples")]
         public async Task Delete_StandbyContainerGroupPoolsDelete()
         {
-            // Generated from example definition: 2024-03-01/StandbyContainerGroupPools_Delete.json
+            // Generated from example definition: 2025-03-01/StandbyContainerGroupPools_Delete.json
             // this example is just showing the usage of "StandbyContainerGroupPoolResource_Delete" operation, for the dependent resources, they will have to be created separately.
 
             // get your azure access token, for more details of how Azure SDK get your access token, please refer to https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication?tabs=command-line
@@ -78,7 +77,7 @@ namespace Azure.ResourceManager.StandbyPool.Samples
         [Ignore("Only validating compilation of examples")]
         public async Task Update_StandbyContainerGroupPoolsUpdate()
         {
-            // Generated from example definition: 2024-03-01/StandbyContainerGroupPools_Update.json
+            // Generated from example definition: 2025-03-01/StandbyContainerGroupPools_Update.json
             // this example is just showing the usage of "StandbyContainerGroupPoolResource_Update" operation, for the dependent resources, they will have to be created separately.
 
             // get your azure access token, for more details of how Azure SDK get your access token, please refer to https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication?tabs=command-line
@@ -95,12 +94,10 @@ namespace Azure.ResourceManager.StandbyPool.Samples
             StandbyContainerGroupPoolResource standbyContainerGroupPool = client.GetStandbyContainerGroupPoolResource(standbyContainerGroupPoolResourceId);
 
             // invoke the operation
-            StandbyContainerGroupPoolPatch patch = new StandbyContainerGroupPoolPatch()
+            StandbyContainerGroupPoolPatch patch = new StandbyContainerGroupPoolPatch
             {
-                Tags =
-{
-},
-                Properties = new StandbyContainerGroupPoolUpdateProperties()
+                Tags = { },
+                Properties = new StandbyContainerGroupPoolUpdateProperties
                 {
                     ElasticityProfile = new StandbyContainerGroupPoolElasticityProfile(1743L)
                     {
@@ -111,14 +108,12 @@ namespace Azure.ResourceManager.StandbyPool.Samples
                         Revision = 2L,
                     })
                     {
-                        SubnetIds =
-{
-new WritableSubResource()
+                        SubnetIds = {new WritableSubResource
 {
 Id = new ResourceIdentifier("/subscriptions/00000000-0000-0000-0000-000000000009/resourceGroups/rgstandbypool/providers/Microsoft.Network/virtualNetworks/cgSubnet/subnets/cgSubnet"),
-}
-},
+}},
                     },
+                    Zones = { "1", "2", "3" },
                 },
             };
             StandbyContainerGroupPoolResource result = await standbyContainerGroupPool.UpdateAsync(patch);
@@ -128,37 +123,6 @@ Id = new ResourceIdentifier("/subscriptions/00000000-0000-0000-0000-000000000009
             StandbyContainerGroupPoolData resourceData = result.Data;
             // for demo we just print out the id
             Console.WriteLine($"Succeeded on id: {resourceData.Id}");
-        }
-
-        [Test]
-        [Ignore("Only validating compilation of examples")]
-        public async Task GetStandbyContainerGroupPools_StandbyContainerGroupPoolsListBySubscription()
-        {
-            // Generated from example definition: 2024-03-01/StandbyContainerGroupPools_ListBySubscription.json
-            // this example is just showing the usage of "StandbyContainerGroupPoolResource_ListBySubscription" operation, for the dependent resources, they will have to be created separately.
-
-            // get your azure access token, for more details of how Azure SDK get your access token, please refer to https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication?tabs=command-line
-            TokenCredential cred = new DefaultAzureCredential();
-            // authenticate your client
-            ArmClient client = new ArmClient(cred);
-
-            // this example assumes you already have this SubscriptionResource created on azure
-            // for more information of creating SubscriptionResource, please refer to the document of SubscriptionResource
-            string subscriptionId = "00000000-0000-0000-0000-000000000009";
-            ResourceIdentifier subscriptionResourceId = SubscriptionResource.CreateResourceIdentifier(subscriptionId);
-            SubscriptionResource subscriptionResource = client.GetSubscriptionResource(subscriptionResourceId);
-
-            // invoke the operation and iterate over the result
-            await foreach (StandbyContainerGroupPoolResource item in subscriptionResource.GetStandbyContainerGroupPoolsAsync())
-            {
-                // the variable item is a resource, you could call other operations on this instance as well
-                // but just for demo, we get its data from this resource instance
-                StandbyContainerGroupPoolData resourceData = item.Data;
-                // for demo we just print out the id
-                Console.WriteLine($"Succeeded on id: {resourceData.Id}");
-            }
-
-            Console.WriteLine("Succeeded");
         }
     }
 }

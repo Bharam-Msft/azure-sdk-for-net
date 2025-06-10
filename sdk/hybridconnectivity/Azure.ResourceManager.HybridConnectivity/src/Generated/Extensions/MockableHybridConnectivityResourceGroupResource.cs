@@ -33,11 +33,11 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
             return apiVersion;
         }
 
-        /// <summary> Gets a collection of HybridConnectivityPublicCloudConnectorResources in the ResourceGroupResource. </summary>
-        /// <returns> An object representing collection of HybridConnectivityPublicCloudConnectorResources and their operations over a HybridConnectivityPublicCloudConnectorResource. </returns>
-        public virtual HybridConnectivityPublicCloudConnectorCollection GetHybridConnectivityPublicCloudConnectors()
+        /// <summary> Gets a collection of PublicCloudConnectorResources in the ResourceGroupResource. </summary>
+        /// <returns> An object representing collection of PublicCloudConnectorResources and their operations over a PublicCloudConnectorResource. </returns>
+        public virtual PublicCloudConnectorCollection GetPublicCloudConnectors()
         {
-            return GetCachedClient(client => new HybridConnectivityPublicCloudConnectorCollection(client, Id));
+            return GetCachedClient(client => new PublicCloudConnectorCollection(client, Id));
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
         /// </item>
         /// <item>
         /// <term>Operation Id</term>
-        /// <description>PublicCloudConnectors_Get</description>
+        /// <description>PublicCloudConnector_Get</description>
         /// </item>
         /// <item>
         /// <term>Default Api Version</term>
@@ -57,7 +57,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
         /// </item>
         /// <item>
         /// <term>Resource</term>
-        /// <description><see cref="HybridConnectivityPublicCloudConnectorResource"/></description>
+        /// <description><see cref="PublicCloudConnectorResource"/></description>
         /// </item>
         /// </list>
         /// </summary>
@@ -66,9 +66,9 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
         /// <exception cref="ArgumentNullException"> <paramref name="publicCloudConnector"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="publicCloudConnector"/> is an empty string, and was expected to be non-empty. </exception>
         [ForwardsClientCalls]
-        public virtual async Task<Response<HybridConnectivityPublicCloudConnectorResource>> GetHybridConnectivityPublicCloudConnectorAsync(string publicCloudConnector, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<PublicCloudConnectorResource>> GetPublicCloudConnectorAsync(string publicCloudConnector, CancellationToken cancellationToken = default)
         {
-            return await GetHybridConnectivityPublicCloudConnectors().GetAsync(publicCloudConnector, cancellationToken).ConfigureAwait(false);
+            return await GetPublicCloudConnectors().GetAsync(publicCloudConnector, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
         /// </item>
         /// <item>
         /// <term>Operation Id</term>
-        /// <description>PublicCloudConnectors_Get</description>
+        /// <description>PublicCloudConnector_Get</description>
         /// </item>
         /// <item>
         /// <term>Default Api Version</term>
@@ -88,7 +88,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
         /// </item>
         /// <item>
         /// <term>Resource</term>
-        /// <description><see cref="HybridConnectivityPublicCloudConnectorResource"/></description>
+        /// <description><see cref="PublicCloudConnectorResource"/></description>
         /// </item>
         /// </list>
         /// </summary>
@@ -97,47 +97,16 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
         /// <exception cref="ArgumentNullException"> <paramref name="publicCloudConnector"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="publicCloudConnector"/> is an empty string, and was expected to be non-empty. </exception>
         [ForwardsClientCalls]
-        public virtual Response<HybridConnectivityPublicCloudConnectorResource> GetHybridConnectivityPublicCloudConnector(string publicCloudConnector, CancellationToken cancellationToken = default)
+        public virtual Response<PublicCloudConnectorResource> GetPublicCloudConnector(string publicCloudConnector, CancellationToken cancellationToken = default)
         {
-            return GetHybridConnectivityPublicCloudConnectors().Get(publicCloudConnector, cancellationToken);
+            return GetPublicCloudConnectors().Get(publicCloudConnector, cancellationToken);
         }
 
-        /// <summary> Gets a collection of HybridConnectivitySolutionTypeResources in the ResourceGroupResource. </summary>
-        /// <returns> An object representing collection of HybridConnectivitySolutionTypeResources and their operations over a HybridConnectivitySolutionTypeResource. </returns>
-        public virtual HybridConnectivitySolutionTypeCollection GetHybridConnectivitySolutionTypes()
+        /// <summary> Gets a collection of PublicCloudConnectorSolutionTypeResources in the ResourceGroupResource. </summary>
+        /// <returns> An object representing collection of PublicCloudConnectorSolutionTypeResources and their operations over a PublicCloudConnectorSolutionTypeResource. </returns>
+        public virtual PublicCloudConnectorSolutionTypeCollection GetPublicCloudConnectorSolutionTypes()
         {
-            return GetCachedClient(client => new HybridConnectivitySolutionTypeCollection(client, Id));
-        }
-
-        /// <summary>
-        /// Get a SolutionTypeResource
-        /// <list type="bullet">
-        /// <item>
-        /// <term>Request Path</term>
-        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HybridConnectivity/solutionTypes/{solutionType}</description>
-        /// </item>
-        /// <item>
-        /// <term>Operation Id</term>
-        /// <description>SolutionTypes_Get</description>
-        /// </item>
-        /// <item>
-        /// <term>Default Api Version</term>
-        /// <description>2024-12-01</description>
-        /// </item>
-        /// <item>
-        /// <term>Resource</term>
-        /// <description><see cref="HybridConnectivitySolutionTypeResource"/></description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="solutionType"> Solution Type resource. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="solutionType"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="solutionType"/> is an empty string, and was expected to be non-empty. </exception>
-        [ForwardsClientCalls]
-        public virtual async Task<Response<HybridConnectivitySolutionTypeResource>> GetHybridConnectivitySolutionTypeAsync(string solutionType, CancellationToken cancellationToken = default)
-        {
-            return await GetHybridConnectivitySolutionTypes().GetAsync(solutionType, cancellationToken).ConfigureAwait(false);
+            return GetCachedClient(client => new PublicCloudConnectorSolutionTypeCollection(client, Id));
         }
 
         /// <summary>
@@ -149,7 +118,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
         /// </item>
         /// <item>
         /// <term>Operation Id</term>
-        /// <description>SolutionTypes_Get</description>
+        /// <description>SolutionTypeResource_Get</description>
         /// </item>
         /// <item>
         /// <term>Default Api Version</term>
@@ -157,7 +126,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
         /// </item>
         /// <item>
         /// <term>Resource</term>
-        /// <description><see cref="HybridConnectivitySolutionTypeResource"/></description>
+        /// <description><see cref="PublicCloudConnectorSolutionTypeResource"/></description>
         /// </item>
         /// </list>
         /// </summary>
@@ -166,9 +135,40 @@ namespace Azure.ResourceManager.HybridConnectivity.Mocking
         /// <exception cref="ArgumentNullException"> <paramref name="solutionType"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="solutionType"/> is an empty string, and was expected to be non-empty. </exception>
         [ForwardsClientCalls]
-        public virtual Response<HybridConnectivitySolutionTypeResource> GetHybridConnectivitySolutionType(string solutionType, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<PublicCloudConnectorSolutionTypeResource>> GetPublicCloudConnectorSolutionTypeAsync(string solutionType, CancellationToken cancellationToken = default)
         {
-            return GetHybridConnectivitySolutionTypes().Get(solutionType, cancellationToken);
+            return await GetPublicCloudConnectorSolutionTypes().GetAsync(solutionType, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Get a SolutionTypeResource
+        /// <list type="bullet">
+        /// <item>
+        /// <term>Request Path</term>
+        /// <description>/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HybridConnectivity/solutionTypes/{solutionType}</description>
+        /// </item>
+        /// <item>
+        /// <term>Operation Id</term>
+        /// <description>SolutionTypeResource_Get</description>
+        /// </item>
+        /// <item>
+        /// <term>Default Api Version</term>
+        /// <description>2024-12-01</description>
+        /// </item>
+        /// <item>
+        /// <term>Resource</term>
+        /// <description><see cref="PublicCloudConnectorSolutionTypeResource"/></description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="solutionType"> Solution Type resource. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="solutionType"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="solutionType"/> is an empty string, and was expected to be non-empty. </exception>
+        [ForwardsClientCalls]
+        public virtual Response<PublicCloudConnectorSolutionTypeResource> GetPublicCloudConnectorSolutionType(string solutionType, CancellationToken cancellationToken = default)
+        {
+            return GetPublicCloudConnectorSolutionTypes().Get(solutionType, cancellationToken);
         }
     }
 }

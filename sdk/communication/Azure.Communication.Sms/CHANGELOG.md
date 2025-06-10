@@ -1,14 +1,24 @@
 # Release History
 
-## 1.1.0-beta.2 (Unreleased)
+## 1.1.0-beta.3 (Unreleased)
 
 ### Features Added
+ - Introduced Messaging Connect support in the .NET SDK.
+    - Added a new MessagingConnect field to the SmsSendOptions model.
+    - The MessagingConnect structure includes:
+        - apiKey: used for authenticating Messaging Connect requests.
+        - partner: identifies the Messaging Connect partner.
+    - Supports:
+        - Incoming and outgoing flows for long codes.
+        - Outgoing flow for Dynamic Alpha Sender IDs (DASID).
 
-### Breaking Changes
+## 1.1.0-beta.2 (2024-12-10)
 
-### Bugs Fixed
-
-### Other Changes
+### Features Added
+ - Added support for Opt Out Management Api to:
+    - Opt-out the recipient.
+    - Opt-in the recipient.
+    - Check if the recpient is opted-out or not.
 
 ## 1.1.0-beta.1 (2024-05-07)
 
@@ -53,6 +63,6 @@ This is a Public Preview version, so breaking changes are possible in subsequent
 
 <!-- LINKS -->
 [read_me]: https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/communication/Azure.Communication.Sms/README.md
-[documentation]:https://docs.microsoft.com/azure/communication-services/quickstarts/telephony-sms/send?pivots=programming-language-csharp
+[documentation]:https://learn.microsoft.com/azure/communication-services/quickstarts/telephony-sms/send?pivots=programming-language-csharp
 
 

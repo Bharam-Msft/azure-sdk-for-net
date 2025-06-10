@@ -46,7 +46,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             if (options.Format != "W" && Optional.IsDefined(ConnectorPrimaryIdentifier))
             {
                 writer.WritePropertyName("connectorPrimaryIdentifier"u8);
-                writer.WriteStringValue(ConnectorPrimaryIdentifier.Value);
+                writer.WriteStringValue(ConnectorPrimaryIdentifier);
             }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
@@ -56,7 +56,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
 #if NET6_0_OR_GREATER
 				writer.WriteRawValue(item.Value);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(item.Value, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         JsonSerializer.Serialize(writer, document.RootElement);
                     }
@@ -86,9 +86,9 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                 return null;
             }
             AwsCloudProfile awsCloudProfile = default;
-            HybridConnectivityHostType hostType = default;
-            HybridConnectivityResourceProvisioningState? provisioningState = default;
-            Guid? connectorPrimaryIdentifier = default;
+            PublicCloudHostType hostType = default;
+            PublicCloudResourceProvisioningState? provisioningState = default;
+            string connectorPrimaryIdentifier = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
@@ -100,7 +100,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                 }
                 if (property.NameEquals("hostType"u8))
                 {
-                    hostType = new HybridConnectivityHostType(property.Value.GetString());
+                    hostType = new PublicCloudHostType(property.Value.GetString());
                     continue;
                 }
                 if (property.NameEquals("provisioningState"u8))
@@ -109,16 +109,12 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                     {
                         continue;
                     }
-                    provisioningState = new HybridConnectivityResourceProvisioningState(property.Value.GetString());
+                    provisioningState = new PublicCloudResourceProvisioningState(property.Value.GetString());
                     continue;
                 }
                 if (property.NameEquals("connectorPrimaryIdentifier"u8))
                 {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    connectorPrimaryIdentifier = property.Value.GetGuid();
+                    connectorPrimaryIdentifier = property.Value.GetString();
                     continue;
                 }
                 if (options.Format != "W")
@@ -137,7 +133,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHybridConnectivityContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(PublicCloudConnectorProperties)} does not support writing '{options.Format}' format.");
             }
@@ -151,7 +147,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             {
                 case "J":
                     {
-                        using JsonDocument document = JsonDocument.Parse(data);
+                        using JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions);
                         return DeserializePublicCloudConnectorProperties(document.RootElement, options);
                     }
                 default:

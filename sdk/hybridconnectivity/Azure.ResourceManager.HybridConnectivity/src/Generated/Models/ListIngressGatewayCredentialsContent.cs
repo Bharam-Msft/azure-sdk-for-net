@@ -51,7 +51,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
         }
 
         /// <summary> Initializes a new instance of <see cref="ListIngressGatewayCredentialsContent"/>. </summary>
-        /// <param name="serviceName"> The name of the service. </param>
+        /// <param name="serviceName"> The name of the service. If not provided, the request will by pass the generation of service configuration token. </param>
         /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
         internal ListIngressGatewayCredentialsContent(HybridConnectivityServiceName? serviceName, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
@@ -59,7 +59,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        /// <summary> The name of the service. </summary>
+        /// <summary> The name of the service. If not provided, the request will by pass the generation of service configuration token. </summary>
         public HybridConnectivityServiceName? ServiceName { get; set; }
     }
 }

@@ -9,7 +9,6 @@ using System;
 using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Identity;
-using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.StandbyPool.Models;
 using NUnit.Framework;
 
@@ -21,7 +20,7 @@ namespace Azure.ResourceManager.StandbyPool.Samples
         [Ignore("Only validating compilation of examples")]
         public async Task Get_StandbyVirtualMachinePoolsGet()
         {
-            // Generated from example definition: 2024-03-01/StandbyVirtualMachinePools_Get.json
+            // Generated from example definition: 2025-03-01/StandbyVirtualMachinePools_Get.json
             // this example is just showing the usage of "StandbyVirtualMachinePoolResource_Get" operation, for the dependent resources, they will have to be created separately.
 
             // get your azure access token, for more details of how Azure SDK get your access token, please refer to https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication?tabs=command-line
@@ -51,7 +50,7 @@ namespace Azure.ResourceManager.StandbyPool.Samples
         [Ignore("Only validating compilation of examples")]
         public async Task Delete_StandbyVirtualMachinePoolsDelete()
         {
-            // Generated from example definition: 2024-03-01/StandbyVirtualMachinePools_Delete.json
+            // Generated from example definition: 2025-03-01/StandbyVirtualMachinePools_Delete.json
             // this example is just showing the usage of "StandbyVirtualMachinePoolResource_Delete" operation, for the dependent resources, they will have to be created separately.
 
             // get your azure access token, for more details of how Azure SDK get your access token, please refer to https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication?tabs=command-line
@@ -77,7 +76,7 @@ namespace Azure.ResourceManager.StandbyPool.Samples
         [Ignore("Only validating compilation of examples")]
         public async Task Update_StandbyVirtualMachinePoolsUpdate()
         {
-            // Generated from example definition: 2024-03-01/StandbyVirtualMachinePools_Update.json
+            // Generated from example definition: 2025-03-01/StandbyVirtualMachinePools_Update.json
             // this example is just showing the usage of "StandbyVirtualMachinePoolResource_Update" operation, for the dependent resources, they will have to be created separately.
 
             // get your azure access token, for more details of how Azure SDK get your access token, please refer to https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication?tabs=command-line
@@ -94,12 +93,10 @@ namespace Azure.ResourceManager.StandbyPool.Samples
             StandbyVirtualMachinePoolResource standbyVirtualMachinePool = client.GetStandbyVirtualMachinePoolResource(standbyVirtualMachinePoolResourceId);
 
             // invoke the operation
-            StandbyVirtualMachinePoolPatch patch = new StandbyVirtualMachinePoolPatch()
+            StandbyVirtualMachinePoolPatch patch = new StandbyVirtualMachinePoolPatch
             {
-                Tags =
-{
-},
-                Properties = new StandbyVirtualMachinePoolUpdateProperties()
+                Tags = { },
+                Properties = new StandbyVirtualMachinePoolUpdateProperties
                 {
                     ElasticityProfile = new StandbyVirtualMachinePoolElasticityProfile(304L)
                     {
@@ -116,37 +113,6 @@ namespace Azure.ResourceManager.StandbyPool.Samples
             StandbyVirtualMachinePoolData resourceData = result.Data;
             // for demo we just print out the id
             Console.WriteLine($"Succeeded on id: {resourceData.Id}");
-        }
-
-        [Test]
-        [Ignore("Only validating compilation of examples")]
-        public async Task GetStandbyVirtualMachinePools_StandbyVirtualMachinePoolsListBySubscription()
-        {
-            // Generated from example definition: 2024-03-01/StandbyVirtualMachinePools_ListBySubscription.json
-            // this example is just showing the usage of "StandbyVirtualMachinePoolResource_ListBySubscription" operation, for the dependent resources, they will have to be created separately.
-
-            // get your azure access token, for more details of how Azure SDK get your access token, please refer to https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication?tabs=command-line
-            TokenCredential cred = new DefaultAzureCredential();
-            // authenticate your client
-            ArmClient client = new ArmClient(cred);
-
-            // this example assumes you already have this SubscriptionResource created on azure
-            // for more information of creating SubscriptionResource, please refer to the document of SubscriptionResource
-            string subscriptionId = "00000000-0000-0000-0000-000000000009";
-            ResourceIdentifier subscriptionResourceId = SubscriptionResource.CreateResourceIdentifier(subscriptionId);
-            SubscriptionResource subscriptionResource = client.GetSubscriptionResource(subscriptionResourceId);
-
-            // invoke the operation and iterate over the result
-            await foreach (StandbyVirtualMachinePoolResource item in subscriptionResource.GetStandbyVirtualMachinePoolsAsync())
-            {
-                // the variable item is a resource, you could call other operations on this instance as well
-                // but just for demo, we get its data from this resource instance
-                StandbyVirtualMachinePoolData resourceData = item.Data;
-                // for demo we just print out the id
-                Console.WriteLine($"Succeeded on id: {resourceData.Id}");
-            }
-
-            Console.WriteLine("Succeeded");
         }
     }
 }

@@ -39,16 +39,10 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                 writer.WritePropertyName("solutionType"u8);
                 writer.WriteStringValue(SolutionType);
             }
-            if (Optional.IsCollectionDefined(SolutionSettings))
+            if (Optional.IsDefined(SolutionSettings))
             {
                 writer.WritePropertyName("solutionSettings"u8);
-                writer.WriteStartObject();
-                foreach (var item in SolutionSettings)
-                {
-                    writer.WritePropertyName(item.Key);
-                    writer.WriteStringValue(item.Value);
-                }
-                writer.WriteEndObject();
+                writer.WriteObjectValue(SolutionSettings, options);
             }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
@@ -58,7 +52,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
 #if NET6_0_OR_GREATER
 				writer.WriteRawValue(item.Value);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(item.Value, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         JsonSerializer.Serialize(writer, document.RootElement);
                     }
@@ -88,7 +82,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                 return null;
             }
             string solutionType = default;
-            IDictionary<string, string> solutionSettings = default;
+            PublicCloudConnectorSolutionSettings solutionSettings = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
@@ -104,12 +98,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                     {
                         continue;
                     }
-                    Dictionary<string, string> dictionary = new Dictionary<string, string>();
-                    foreach (var property0 in property.Value.EnumerateObject())
-                    {
-                        dictionary.Add(property0.Name, property0.Value.GetString());
-                    }
-                    solutionSettings = dictionary;
+                    solutionSettings = PublicCloudConnectorSolutionSettings.DeserializePublicCloudConnectorSolutionSettings(property.Value, options);
                     continue;
                 }
                 if (options.Format != "W")
@@ -118,7 +107,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                 }
             }
             serializedAdditionalRawData = rawDataDictionary;
-            return new SolutionConfigurationPropertiesUpdate(solutionType, solutionSettings ?? new ChangeTrackingDictionary<string, string>(), serializedAdditionalRawData);
+            return new SolutionConfigurationPropertiesUpdate(solutionType, solutionSettings, serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<SolutionConfigurationPropertiesUpdate>.Write(ModelReaderWriterOptions options)
@@ -128,7 +117,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHybridConnectivityContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(SolutionConfigurationPropertiesUpdate)} does not support writing '{options.Format}' format.");
             }
@@ -142,7 +131,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             {
                 case "J":
                     {
-                        using JsonDocument document = JsonDocument.Parse(data);
+                        using JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions);
                         return DeserializeSolutionConfigurationPropertiesUpdate(document.RootElement, options);
                     }
                 default:

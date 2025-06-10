@@ -52,7 +52,8 @@ namespace Azure.ResourceManager.Network
         /// <param name="ipAllocations"> Array of IpAllocation which reference this VNET. </param>
         /// <param name="flowLogs"> A collection of references to flow log resources. </param>
         /// <param name="privateEndpointVnetPolicy"> Private Endpoint VNet Policies. </param>
-        internal VirtualNetworkData(ResourceIdentifier id, string name, ResourceType? resourceType, AzureLocation? location, IDictionary<string, string> tags, IDictionary<string, BinaryData> serializedAdditionalRawData, ExtendedLocation extendedLocation, ETag? etag, AddressSpace addressSpace, DhcpOptions dhcpOptions, int? flowTimeoutInMinutes, IList<SubnetData> subnets, IList<VirtualNetworkPeeringData> virtualNetworkPeerings, Guid? resourceGuid, NetworkProvisioningState? provisioningState, bool? enableDdosProtection, bool? enableVmProtection, WritableSubResource ddosProtectionPlan, VirtualNetworkBgpCommunities bgpCommunities, VirtualNetworkEncryption encryption, IList<WritableSubResource> ipAllocations, IReadOnlyList<FlowLogData> flowLogs, PrivateEndpointVnetPolicy? privateEndpointVnetPolicy) : base(id, name, resourceType, location, tags, serializedAdditionalRawData)
+        /// <param name="defaultPublicNatGateway"> A reference to the default public nat gateway being used by this virtual network resource. </param>
+        internal VirtualNetworkData(ResourceIdentifier id, string name, ResourceType? resourceType, AzureLocation? location, IDictionary<string, string> tags, IDictionary<string, BinaryData> serializedAdditionalRawData, ExtendedLocation extendedLocation, ETag? etag, VirtualNetworkAddressSpace addressSpace, DhcpOptions dhcpOptions, int? flowTimeoutInMinutes, IList<SubnetData> subnets, IList<VirtualNetworkPeeringData> virtualNetworkPeerings, Guid? resourceGuid, NetworkProvisioningState? provisioningState, bool? enableDdosProtection, bool? enableVmProtection, WritableSubResource ddosProtectionPlan, VirtualNetworkBgpCommunities bgpCommunities, VirtualNetworkEncryption encryption, IList<WritableSubResource> ipAllocations, IReadOnlyList<FlowLogData> flowLogs, PrivateEndpointVnetPolicy? privateEndpointVnetPolicy, WritableSubResource defaultPublicNatGateway) : base(id, name, resourceType, location, tags, serializedAdditionalRawData)
         {
             ExtendedLocation = extendedLocation;
             ETag = etag;
@@ -71,6 +72,7 @@ namespace Azure.ResourceManager.Network
             IPAllocations = ipAllocations;
             FlowLogs = flowLogs;
             PrivateEndpointVnetPolicy = privateEndpointVnetPolicy;
+            DefaultPublicNatGateway = defaultPublicNatGateway;
         }
 
         /// <summary> The extended location of the virtual network. </summary>
@@ -78,18 +80,7 @@ namespace Azure.ResourceManager.Network
         /// <summary> A unique read-only string that changes whenever the resource is updated. </summary>
         public ETag? ETag { get; }
         /// <summary> The AddressSpace that contains an array of IP address ranges that can be used by subnets. </summary>
-        internal AddressSpace AddressSpace { get; set; }
-        /// <summary> A list of address blocks reserved for this virtual network in CIDR notation. </summary>
-        public IList<string> AddressPrefixes
-        {
-            get
-            {
-                if (AddressSpace is null)
-                    AddressSpace = new AddressSpace();
-                return AddressSpace.AddressPrefixes;
-            }
-        }
-
+        public VirtualNetworkAddressSpace AddressSpace { get; set; }
         /// <summary> The dhcpOptions that contains an array of DNS servers available to VMs deployed in the virtual network. </summary>
         internal DhcpOptions DhcpOptions { get; set; }
         /// <summary> The list of DNS servers IP addresses. </summary>
@@ -141,5 +132,12 @@ namespace Azure.ResourceManager.Network
         public IReadOnlyList<FlowLogData> FlowLogs { get; }
         /// <summary> Private Endpoint VNet Policies. </summary>
         public PrivateEndpointVnetPolicy? PrivateEndpointVnetPolicy { get; set; }
+        /// <summary> A reference to the default public nat gateway being used by this virtual network resource. </summary>
+        internal WritableSubResource DefaultPublicNatGateway { get; }
+        /// <summary> Gets or sets Id. </summary>
+        public ResourceIdentifier DefaultPublicNatGatewayId
+        {
+            get => DefaultPublicNatGateway?.Id;
+        }
     }
 }

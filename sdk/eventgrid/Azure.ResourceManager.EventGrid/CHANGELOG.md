@@ -1,16 +1,46 @@
 # Release History
 
-## 1.1.0-beta.6 (Unreleased)
+## 1.2.0-beta.2 (Unreleased)
 
 ### Features Added
-
-- Exposed `JsonModelWriteCore` for model serialization procedure.
 
 ### Breaking Changes
 
 ### Bugs Fixed
 
 ### Other Changes
+
+## 1.2.0-beta.1 (2025-06-05)
+
+### Features Added
+
+- Upgraded api-version tag from 'package-2025-02-15' to 'package-2025-04-preview'. Tag detail available at https://github.com/Azure/azure-rest-api-specs/blob/79c3ab8586bd78947815ebf39b66584f67095c2f/specification/eventgrid/resource-manager/readme.md.
+    - CustomWebhookAuthentication
+
+### Other Changes
+
+- Upgraded common resource type version from v5 to v6.
+- Renamed AAD to Microsoft Entra ID.
+
+## 1.1.0 (2025-03-31)
+
+### Features Added
+
+- Upgraded api-version tag from 'package-2024-06-preview' to 'package-2025-02-15'. Tag detail available at https://github.com/Azure/azure-rest-api-specs/blob/8a059231d92b10d87ffc3f18515516e84dae87cc/specification/eventgrid/resource-manager/readme.md .
+   - Namespace resources  (namespace, topic, eventsubscription (Push/Pull) + all mqtt resources (clients, clientgroups, etc)
+   - Custom Domains
+   - minimumTlsVersion
+   - eventTypeInfo
+   - RoutingEnrichments
+   - MonitorAlert as destination
+   - Namespace topic as destination 
+   - TopicTypeAdditionalEnforcedPermission
+
+## 1.1.0-beta.6 (2025-03-11)
+
+### Features Added
+
+- Exposed `JsonModelWriteCore` for model serialization procedure.
 
 ## 1.1.0-beta.5 (2024-06-05)
 
@@ -125,4 +155,4 @@ This package follows the [new Azure SDK guidelines](https://azure.github.io/azur
 
 This package is a Public Preview version, so expect incompatible changes in subsequent releases as we improve the product. To provide feedback, submit an issue in our [Azure SDK for .NET GitHub repo](https://github.com/Azure/azure-sdk-for-net/issues).
 
-> NOTE: For more information about unified authentication, please refer to [Microsoft Azure Identity documentation for .NET](https://docs.microsoft.com//dotnet/api/overview/azure/identity-readme?view=azure-dotnet).
+> NOTE: For more information about unified authentication, please refer to [Microsoft Azure Identity documentation for .NET](https://learn.microsoft.com/dotnet/api/overview/azure/identity-readme?view=azure-dotnet).

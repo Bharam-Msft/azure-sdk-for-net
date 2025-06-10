@@ -25,8 +25,8 @@ namespace Azure.ResourceManager.HybridConnectivity
         /// <summary> Initializes a new instance of SolutionConfigurationsRestOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="applicationId"> The application id to use for user agent. </param>
-        /// <param name="endpoint"> server parameter. </param>
-        /// <param name="apiVersion"> Api Version. </param>
+        /// <param name="endpoint"> Service host. </param>
+        /// <param name="apiVersion"> The API version to use for this operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="pipeline"/> or <paramref name="apiVersion"/> is null. </exception>
         public SolutionConfigurationsRestOperations(HttpPipeline pipeline, string applicationId, Uri endpoint = null, string apiVersion = default)
         {
@@ -34,82 +34,6 @@ namespace Azure.ResourceManager.HybridConnectivity
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
             _apiVersion = apiVersion ?? "2024-12-01";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
-        }
-
-        internal RequestUriBuilder CreateListRequestUri(string resourceUri)
-        {
-            var uri = new RawRequestUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/", false);
-            uri.AppendPath(resourceUri, false);
-            uri.AppendPath("/providers/Microsoft.HybridConnectivity/solutionConfigurations", false);
-            uri.AppendQuery("api-version", _apiVersion, true);
-            return uri;
-        }
-
-        internal HttpMessage CreateListRequest(string resourceUri)
-        {
-            var message = _pipeline.CreateMessage();
-            var request = message.Request;
-            request.Method = RequestMethod.Get;
-            var uri = new RawRequestUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/", false);
-            uri.AppendPath(resourceUri, false);
-            uri.AppendPath("/providers/Microsoft.HybridConnectivity/solutionConfigurations", false);
-            uri.AppendQuery("api-version", _apiVersion, true);
-            request.Uri = uri;
-            request.Headers.Add("Accept", "application/json");
-            _userAgent.Apply(message);
-            return message;
-        }
-
-        /// <summary> List SolutionConfiguration resources by parent. </summary>
-        /// <param name="resourceUri"> The fully qualified Azure Resource manager identifier of the resource. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/> is null. </exception>
-        public async Task<Response<SolutionConfigurationListResult>> ListAsync(string resourceUri, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(resourceUri, nameof(resourceUri));
-
-            using var message = CreateListRequest(resourceUri);
-            await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
-            switch (message.Response.Status)
-            {
-                case 200:
-                    {
-                        SolutionConfigurationListResult value = default;
-                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = SolutionConfigurationListResult.DeserializeSolutionConfigurationListResult(document.RootElement);
-                        return Response.FromValue(value, message.Response);
-                    }
-                default:
-                    throw new RequestFailedException(message.Response);
-            }
-        }
-
-        /// <summary> List SolutionConfiguration resources by parent. </summary>
-        /// <param name="resourceUri"> The fully qualified Azure Resource manager identifier of the resource. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/> is null. </exception>
-        public Response<SolutionConfigurationListResult> List(string resourceUri, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(resourceUri, nameof(resourceUri));
-
-            using var message = CreateListRequest(resourceUri);
-            _pipeline.Send(message, cancellationToken);
-            switch (message.Response.Status)
-            {
-                case 200:
-                    {
-                        SolutionConfigurationListResult value = default;
-                        using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = SolutionConfigurationListResult.DeserializeSolutionConfigurationListResult(document.RootElement);
-                        return Response.FromValue(value, message.Response);
-                    }
-                default:
-                    throw new RequestFailedException(message.Response);
-            }
         }
 
         internal RequestUriBuilder CreateGetRequestUri(string resourceUri, string solutionConfiguration)
@@ -148,7 +72,7 @@ namespace Azure.ResourceManager.HybridConnectivity
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/> or <paramref name="solutionConfiguration"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<HybridConnectivitySolutionConfigurationData>> GetAsync(string resourceUri, string solutionConfiguration, CancellationToken cancellationToken = default)
+        public async Task<Response<PublicCloudConnectorSolutionConfigurationData>> GetAsync(string resourceUri, string solutionConfiguration, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(resourceUri, nameof(resourceUri));
             Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
@@ -159,13 +83,13 @@ namespace Azure.ResourceManager.HybridConnectivity
             {
                 case 200:
                     {
-                        HybridConnectivitySolutionConfigurationData value = default;
-                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = HybridConnectivitySolutionConfigurationData.DeserializeHybridConnectivitySolutionConfigurationData(document.RootElement);
+                        PublicCloudConnectorSolutionConfigurationData value = default;
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions, cancellationToken).ConfigureAwait(false);
+                        value = PublicCloudConnectorSolutionConfigurationData.DeserializePublicCloudConnectorSolutionConfigurationData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((HybridConnectivitySolutionConfigurationData)null, message.Response);
+                    return Response.FromValue((PublicCloudConnectorSolutionConfigurationData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
@@ -177,7 +101,7 @@ namespace Azure.ResourceManager.HybridConnectivity
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/> or <paramref name="solutionConfiguration"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<HybridConnectivitySolutionConfigurationData> Get(string resourceUri, string solutionConfiguration, CancellationToken cancellationToken = default)
+        public Response<PublicCloudConnectorSolutionConfigurationData> Get(string resourceUri, string solutionConfiguration, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(resourceUri, nameof(resourceUri));
             Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
@@ -188,19 +112,19 @@ namespace Azure.ResourceManager.HybridConnectivity
             {
                 case 200:
                     {
-                        HybridConnectivitySolutionConfigurationData value = default;
-                        using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = HybridConnectivitySolutionConfigurationData.DeserializeHybridConnectivitySolutionConfigurationData(document.RootElement);
+                        PublicCloudConnectorSolutionConfigurationData value = default;
+                        using var document = JsonDocument.Parse(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions);
+                        value = PublicCloudConnectorSolutionConfigurationData.DeserializePublicCloudConnectorSolutionConfigurationData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 case 404:
-                    return Response.FromValue((HybridConnectivitySolutionConfigurationData)null, message.Response);
+                    return Response.FromValue((PublicCloudConnectorSolutionConfigurationData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
         }
 
-        internal RequestUriBuilder CreateCreateOrUpdateRequestUri(string resourceUri, string solutionConfiguration, HybridConnectivitySolutionConfigurationData data)
+        internal RequestUriBuilder CreateCreateOrUpdateRequestUri(string resourceUri, string solutionConfiguration, PublicCloudConnectorSolutionConfigurationData data)
         {
             var uri = new RawRequestUriBuilder();
             uri.Reset(_endpoint);
@@ -212,7 +136,7 @@ namespace Azure.ResourceManager.HybridConnectivity
             return uri;
         }
 
-        internal HttpMessage CreateCreateOrUpdateRequest(string resourceUri, string solutionConfiguration, HybridConnectivitySolutionConfigurationData data)
+        internal HttpMessage CreateCreateOrUpdateRequest(string resourceUri, string solutionConfiguration, PublicCloudConnectorSolutionConfigurationData data)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -241,7 +165,7 @@ namespace Azure.ResourceManager.HybridConnectivity
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/>, <paramref name="solutionConfiguration"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<HybridConnectivitySolutionConfigurationData>> CreateOrUpdateAsync(string resourceUri, string solutionConfiguration, HybridConnectivitySolutionConfigurationData data, CancellationToken cancellationToken = default)
+        public async Task<Response<PublicCloudConnectorSolutionConfigurationData>> CreateOrUpdateAsync(string resourceUri, string solutionConfiguration, PublicCloudConnectorSolutionConfigurationData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(resourceUri, nameof(resourceUri));
             Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
@@ -254,9 +178,9 @@ namespace Azure.ResourceManager.HybridConnectivity
                 case 200:
                 case 201:
                     {
-                        HybridConnectivitySolutionConfigurationData value = default;
-                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = HybridConnectivitySolutionConfigurationData.DeserializeHybridConnectivitySolutionConfigurationData(document.RootElement);
+                        PublicCloudConnectorSolutionConfigurationData value = default;
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions, cancellationToken).ConfigureAwait(false);
+                        value = PublicCloudConnectorSolutionConfigurationData.DeserializePublicCloudConnectorSolutionConfigurationData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -271,7 +195,7 @@ namespace Azure.ResourceManager.HybridConnectivity
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/>, <paramref name="solutionConfiguration"/> or <paramref name="data"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<HybridConnectivitySolutionConfigurationData> CreateOrUpdate(string resourceUri, string solutionConfiguration, HybridConnectivitySolutionConfigurationData data, CancellationToken cancellationToken = default)
+        public Response<PublicCloudConnectorSolutionConfigurationData> CreateOrUpdate(string resourceUri, string solutionConfiguration, PublicCloudConnectorSolutionConfigurationData data, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(resourceUri, nameof(resourceUri));
             Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
@@ -284,9 +208,9 @@ namespace Azure.ResourceManager.HybridConnectivity
                 case 200:
                 case 201:
                     {
-                        HybridConnectivitySolutionConfigurationData value = default;
-                        using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = HybridConnectivitySolutionConfigurationData.DeserializeHybridConnectivitySolutionConfigurationData(document.RootElement);
+                        PublicCloudConnectorSolutionConfigurationData value = default;
+                        using var document = JsonDocument.Parse(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions);
+                        value = PublicCloudConnectorSolutionConfigurationData.DeserializePublicCloudConnectorSolutionConfigurationData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -294,7 +218,7 @@ namespace Azure.ResourceManager.HybridConnectivity
             }
         }
 
-        internal RequestUriBuilder CreateUpdateRequestUri(string resourceUri, string solutionConfiguration, HybridConnectivitySolutionConfigurationPatch patch)
+        internal RequestUriBuilder CreateUpdateRequestUri(string resourceUri, string solutionConfiguration, PublicCloudConnectorSolutionConfigurationPatch patch)
         {
             var uri = new RawRequestUriBuilder();
             uri.Reset(_endpoint);
@@ -306,7 +230,7 @@ namespace Azure.ResourceManager.HybridConnectivity
             return uri;
         }
 
-        internal HttpMessage CreateUpdateRequest(string resourceUri, string solutionConfiguration, HybridConnectivitySolutionConfigurationPatch patch)
+        internal HttpMessage CreateUpdateRequest(string resourceUri, string solutionConfiguration, PublicCloudConnectorSolutionConfigurationPatch patch)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -335,7 +259,7 @@ namespace Azure.ResourceManager.HybridConnectivity
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/>, <paramref name="solutionConfiguration"/> or <paramref name="patch"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<HybridConnectivitySolutionConfigurationData>> UpdateAsync(string resourceUri, string solutionConfiguration, HybridConnectivitySolutionConfigurationPatch patch, CancellationToken cancellationToken = default)
+        public async Task<Response<PublicCloudConnectorSolutionConfigurationData>> UpdateAsync(string resourceUri, string solutionConfiguration, PublicCloudConnectorSolutionConfigurationPatch patch, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(resourceUri, nameof(resourceUri));
             Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
@@ -347,9 +271,9 @@ namespace Azure.ResourceManager.HybridConnectivity
             {
                 case 200:
                     {
-                        HybridConnectivitySolutionConfigurationData value = default;
-                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = HybridConnectivitySolutionConfigurationData.DeserializeHybridConnectivitySolutionConfigurationData(document.RootElement);
+                        PublicCloudConnectorSolutionConfigurationData value = default;
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions, cancellationToken).ConfigureAwait(false);
+                        value = PublicCloudConnectorSolutionConfigurationData.DeserializePublicCloudConnectorSolutionConfigurationData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -364,7 +288,7 @@ namespace Azure.ResourceManager.HybridConnectivity
         /// <param name="cancellationToken"> The cancellation token to use. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/>, <paramref name="solutionConfiguration"/> or <paramref name="patch"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<HybridConnectivitySolutionConfigurationData> Update(string resourceUri, string solutionConfiguration, HybridConnectivitySolutionConfigurationPatch patch, CancellationToken cancellationToken = default)
+        public Response<PublicCloudConnectorSolutionConfigurationData> Update(string resourceUri, string solutionConfiguration, PublicCloudConnectorSolutionConfigurationPatch patch, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(resourceUri, nameof(resourceUri));
             Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
@@ -376,9 +300,9 @@ namespace Azure.ResourceManager.HybridConnectivity
             {
                 case 200:
                     {
-                        HybridConnectivitySolutionConfigurationData value = default;
-                        using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = HybridConnectivitySolutionConfigurationData.DeserializeHybridConnectivitySolutionConfigurationData(document.RootElement);
+                        PublicCloudConnectorSolutionConfigurationData value = default;
+                        using var document = JsonDocument.Parse(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions);
+                        value = PublicCloudConnectorSolutionConfigurationData.DeserializePublicCloudConnectorSolutionConfigurationData(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -462,6 +386,82 @@ namespace Azure.ResourceManager.HybridConnectivity
             }
         }
 
+        internal RequestUriBuilder CreateListRequestUri(string resourceUri)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/", false);
+            uri.AppendPath(resourceUri, false);
+            uri.AppendPath("/providers/Microsoft.HybridConnectivity/solutionConfigurations", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateListRequest(string resourceUri)
+        {
+            var message = _pipeline.CreateMessage();
+            var request = message.Request;
+            request.Method = RequestMethod.Get;
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/", false);
+            uri.AppendPath(resourceUri, false);
+            uri.AppendPath("/providers/Microsoft.HybridConnectivity/solutionConfigurations", false);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            request.Uri = uri;
+            request.Headers.Add("Accept", "application/json");
+            _userAgent.Apply(message);
+            return message;
+        }
+
+        /// <summary> List SolutionConfiguration resources by parent. </summary>
+        /// <param name="resourceUri"> The fully qualified Azure Resource manager identifier of the resource. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/> is null. </exception>
+        public async Task<Response<SolutionConfigurationListResult>> ListAsync(string resourceUri, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(resourceUri, nameof(resourceUri));
+
+            using var message = CreateListRequest(resourceUri);
+            await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
+            switch (message.Response.Status)
+            {
+                case 200:
+                    {
+                        SolutionConfigurationListResult value = default;
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions, cancellationToken).ConfigureAwait(false);
+                        value = SolutionConfigurationListResult.DeserializeSolutionConfigurationListResult(document.RootElement);
+                        return Response.FromValue(value, message.Response);
+                    }
+                default:
+                    throw new RequestFailedException(message.Response);
+            }
+        }
+
+        /// <summary> List SolutionConfiguration resources by parent. </summary>
+        /// <param name="resourceUri"> The fully qualified Azure Resource manager identifier of the resource. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/> is null. </exception>
+        public Response<SolutionConfigurationListResult> List(string resourceUri, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(resourceUri, nameof(resourceUri));
+
+            using var message = CreateListRequest(resourceUri);
+            _pipeline.Send(message, cancellationToken);
+            switch (message.Response.Status)
+            {
+                case 200:
+                    {
+                        SolutionConfigurationListResult value = default;
+                        using var document = JsonDocument.Parse(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions);
+                        value = SolutionConfigurationListResult.DeserializeSolutionConfigurationListResult(document.RootElement);
+                        return Response.FromValue(value, message.Response);
+                    }
+                default:
+                    throw new RequestFailedException(message.Response);
+            }
+        }
+
         internal RequestUriBuilder CreateSyncNowRequestUri(string resourceUri, string solutionConfiguration)
         {
             var uri = new RawRequestUriBuilder();
@@ -509,8 +509,8 @@ namespace Azure.ResourceManager.HybridConnectivity
             await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
             switch (message.Response.Status)
             {
-                case 200:
                 case 202:
+                case 200:
                     return message.Response;
                 default:
                     throw new RequestFailedException(message.Response);
@@ -532,8 +532,8 @@ namespace Azure.ResourceManager.HybridConnectivity
             _pipeline.Send(message, cancellationToken);
             switch (message.Response.Status)
             {
-                case 200:
                 case 202:
+                case 200:
                     return message.Response;
                 default:
                     throw new RequestFailedException(message.Response);
@@ -579,7 +579,7 @@ namespace Azure.ResourceManager.HybridConnectivity
                 case 200:
                     {
                         SolutionConfigurationListResult value = default;
-                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions, cancellationToken).ConfigureAwait(false);
                         value = SolutionConfigurationListResult.DeserializeSolutionConfigurationListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
@@ -605,7 +605,7 @@ namespace Azure.ResourceManager.HybridConnectivity
                 case 200:
                     {
                         SolutionConfigurationListResult value = default;
-                        using var document = JsonDocument.Parse(message.Response.ContentStream);
+                        using var document = JsonDocument.Parse(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions);
                         value = SolutionConfigurationListResult.DeserializeSolutionConfigurationListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }

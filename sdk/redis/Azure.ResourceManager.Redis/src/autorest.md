@@ -8,11 +8,11 @@ azure-arm: true
 csharp: true
 library-name: Redis
 namespace: Azure.ResourceManager.Redis
-require: https://github.com/Azure/azure-rest-api-specs/blob/3cb1b51638616435470fc10ea00de92512186ece/specification/redis/resource-manager/readme.md
+require: https://github.com/Azure/azure-rest-api-specs/blob/9069559e0fe5ed52b884ddc658fa539ec67c7ef8/specification/redis/resource-manager/readme.md
 output-folder: $(this-folder)/Generated
 clear-output-folder: true
 sample-gen:
-  output-folder: $(this-folder)/../samples/Generated
+  output-folder: $(this-folder)/../tests/Generated
   clear-output-folder: true
 skip-csproj: true
 modelerfour:
@@ -20,7 +20,6 @@ modelerfour:
   lenient-model-deduplication: true
 use-model-reader-writer: true
 enable-bicep-serialization: true
-tag: package-2024-03
 
 rename-mapping:
   CheckNameAvailabilityParameters: RedisNameAvailabilityContent

@@ -54,7 +54,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
 #if NET6_0_OR_GREATER
 				writer.WriteRawValue(item.Value);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(item.Value, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         JsonSerializer.Serialize(writer, document.RootElement);
                     }
@@ -83,7 +83,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             {
                 return null;
             }
-            IReadOnlyList<HybridConnectivitySolutionTypeData> value = default;
+            IReadOnlyList<PublicCloudConnectorSolutionTypeData> value = default;
             Uri nextLink = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
@@ -91,10 +91,10 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             {
                 if (property.NameEquals("value"u8))
                 {
-                    List<HybridConnectivitySolutionTypeData> array = new List<HybridConnectivitySolutionTypeData>();
+                    List<PublicCloudConnectorSolutionTypeData> array = new List<PublicCloudConnectorSolutionTypeData>();
                     foreach (var item in property.Value.EnumerateArray())
                     {
-                        array.Add(HybridConnectivitySolutionTypeData.DeserializeHybridConnectivitySolutionTypeData(item, options));
+                        array.Add(PublicCloudConnectorSolutionTypeData.DeserializePublicCloudConnectorSolutionTypeData(item, options));
                     }
                     value = array;
                     continue;
@@ -124,7 +124,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHybridConnectivityContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(SolutionTypeResourceListResult)} does not support writing '{options.Format}' format.");
             }
@@ -138,7 +138,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             {
                 case "J":
                     {
-                        using JsonDocument document = JsonDocument.Parse(data);
+                        using JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions);
                         return DeserializeSolutionTypeResourceListResult(document.RootElement, options);
                     }
                 default:

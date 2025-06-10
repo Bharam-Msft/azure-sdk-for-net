@@ -54,7 +54,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
 #if NET6_0_OR_GREATER
 				writer.WriteRawValue(item.Value);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(item.Value, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         JsonSerializer.Serialize(writer, document.RootElement);
                     }
@@ -84,7 +84,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                 return null;
             }
             ResourceIdentifier connectorId = default;
-            IList<SolutionTypeSettings> solutionTypes = default;
+            IList<PublicCloudConnectorSolutionTypeSettings> solutionTypes = default;
             IDictionary<string, BinaryData> serializedAdditionalRawData = default;
             Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
@@ -100,10 +100,10 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                     {
                         continue;
                     }
-                    List<SolutionTypeSettings> array = new List<SolutionTypeSettings>();
+                    List<PublicCloudConnectorSolutionTypeSettings> array = new List<PublicCloudConnectorSolutionTypeSettings>();
                     foreach (var item in property.Value.EnumerateArray())
                     {
-                        array.Add(SolutionTypeSettings.DeserializeSolutionTypeSettings(item, options));
+                        array.Add(PublicCloudConnectorSolutionTypeSettings.DeserializePublicCloudConnectorSolutionTypeSettings(item, options));
                     }
                     solutionTypes = array;
                     continue;
@@ -114,7 +114,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
                 }
             }
             serializedAdditionalRawData = rawDataDictionary;
-            return new GenerateAwsTemplateContent(connectorId, solutionTypes ?? new ChangeTrackingList<SolutionTypeSettings>(), serializedAdditionalRawData);
+            return new GenerateAwsTemplateContent(connectorId, solutionTypes ?? new ChangeTrackingList<PublicCloudConnectorSolutionTypeSettings>(), serializedAdditionalRawData);
         }
 
         BinaryData IPersistableModel<GenerateAwsTemplateContent>.Write(ModelReaderWriterOptions options)
@@ -124,7 +124,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHybridConnectivityContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(GenerateAwsTemplateContent)} does not support writing '{options.Format}' format.");
             }
@@ -138,7 +138,7 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
             {
                 case "J":
                     {
-                        using JsonDocument document = JsonDocument.Parse(data);
+                        using JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions);
                         return DeserializeGenerateAwsTemplateContent(document.RootElement, options);
                     }
                 default:

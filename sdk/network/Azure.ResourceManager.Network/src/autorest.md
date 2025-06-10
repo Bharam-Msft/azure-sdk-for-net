@@ -7,12 +7,12 @@ Run `dotnet build /t:GenerateCode` to generate code.
 azure-arm: true
 library-name: Network
 namespace: Azure.ResourceManager.Network
-require: https://github.com/Azure/azure-rest-api-specs/blob/738879cc6e1c5569b01130fd69a2587388fc34b3/specification/network/resource-manager/readme.md
-# tag: package-2024-03
+require: https://github.com/Azure/azure-rest-api-specs/blob/e09cd33f2f497a30aff4d6ca706e4fd01cbb384d/specification/network/resource-manager/readme.md
+#tag: package-2024-07-01
 output-folder: $(this-folder)/Generated
 clear-output-folder: true
 sample-gen:
-  output-folder: $(this-folder)/../samples/Generated
+  output-folder: $(this-folder)/../tests/Generated
   clear-output-folder: true
   skipped-operations:
     # Not support generate samples from customized operations
@@ -38,12 +38,15 @@ resource-model-requires-type: false
 
 rename-mapping:
   Access: NetworkAccess
+  AssociationAccessMode: NetworkSecurityPerimeterAssociationAccessMode
+  AccessRuleDirection: NetworkSecurityPerimeterAccessRuleDirection
   Action: RouteMapAction
   ActionType: RuleMatchActionType
   ActiveConfigurationParameter.regions: -|azure-location
   ActiveConfigurationParameter: ActiveConfigurationContent
   ActiveConnectivityConfiguration.commitTime: CommittedOn
   ActiveConnectivityConfiguration.region: -|azure-location
+  AddressSpace: VirtualNetworkAddressSpace
   AdminRule: NetworkAdminRule
   AdminRuleCollection: AdminRuleGroup
   AdminRuleCollectionListResult: AdminRuleGroupListResult
@@ -113,6 +116,8 @@ rename-mapping:
   Hub: ConnectivityHub
   IdpsQueryObject: IdpsQueryContent
   InboundNatPool: LoadBalancerInboundNatPool
+  InboundNatPoolPropertiesFormat: LoadBalancerInboundNatPoolProperties
+  IntentContent: AnalysisRunIntentContent
   IpAllocation.properties.type: IPAllocationType
   IpAllocationListResult: NetworkIPAllocationListResult
   IPAllocationMethod: NetworkIPAllocationMethod
@@ -123,10 +128,14 @@ rename-mapping:
   IPConfigurationProfile: NetworkIPConfigurationProfile
   IPPrefixesList: LearnedIPPrefixesListResult
   IPRule: BastionHostIPRule
+  IPTraffic: NetworkVerifierIPTraffic
+  IpType: IpamIPType
   IPVersion: NetworkIPVersion
   IsGlobal: GlobalMeshSupportFlag
   IssueType: ConnectivityIssueType
   IsWorkloadProtected: WorkloadProtectedFlag
+  LoadBalancerHealthPerRulePerBackendAddress.networkInterfaceIPConfigurationId: NetworkInterfaceIPConfigurationResourceId|arm-id
+  LoadBalancingRulePropertiesFormat: LoadBalancingRuleProperties
   MigratedPools: MigrateLoadBalancerToIPBasedResult
   NetworkManagerConnection.properties.networkManagerId: -|arm-id
   NetworkManagerDeploymentStatus.deploymentStatus: DeploymentState
@@ -136,11 +145,14 @@ rename-mapping:
   NextStep: RouteMapNextStepBehavior
   OrderBy: IdpsQueryOrderBy
   Origin: IssueOrigin
+  P2SConnectionConfiguration.properties.configurationPolicyGroupAssociations: ConfigurationPolicyGroups
   PacketCapture.properties.continuousCapture: IsContinuousCapture
   PacketCapture: PacketCaptureInput
   PacketCaptureResult.properties.continuousCapture: IsContinuousCapture
   PacketCaptureResult: PacketCapture
   Parameter: RouteMapActionParameter
+  PoolAssociation: IpamPoolAssociation
+  PoolUsage: IpamPoolUsage
   PreferredIPVersion: TestEvalPreferredIPVersion
   PrivateEndpointIPConfiguration.properties.privateIPAddress: -|ip-address
   PrivateEndpointVNetPolicies: PrivateEndpointVnetPolicies
@@ -155,8 +167,11 @@ rename-mapping:
   QosDefinition: DscpQosDefinition
   QueryRequestOptions: NetworkManagementQueryContent
   QueryResults: IdpsSignatureListResult
+  PerimeterAssociableResource: NetworkSecurityPerimeterAssociableResourceType
+  PerimeterBasedAccessRule: NetworkSecurityPerimeterBasedAccessRule
   ResiliencyModel: ExpressRouteGatewayResiliencyModel
   Resource: NetworkTrackedResourceData
+  ResourceBasics: IpamResourceBasics
   RoutingRule: NetworkManagerRoutingRule
   RoutingRuleCollection: NetworkManagerRoutingRules
   SecurityUserConfiguration: NetworkManagerSecurityUserConfiguration
@@ -196,6 +211,8 @@ rename-mapping:
   UsagesListResult: NetworkUsagesListResult
   UsageUnit: NetworkUsageUnit
   UseHubGateway: HubGatewayUsageFlag
+  VerifierWorkspace: NetworkVerifierWorkspace
+  VerifierWorkspaceProperties: NetworkVerifierWorkspaceProperties
   VirtualApplianceIPConfigurationProperties.primary: IsPrimary
   VirtualNetwork.properties.privateEndpointVNetPolicies: PrivateEndpointVnetPolicy
   VirtualNetworkEncryption.enabled: IsEnabled
@@ -278,6 +295,7 @@ acronym-mapping:
   IKEv2: IkeV2
   IkeV2: IkeV2
   Stag: STag|stag
+  Nsp: NetworkSecurityPerimeter
 
 #TODO: remove after we resolve why DdosCustomPolicy has no list
 list-exception:
@@ -336,6 +354,9 @@ directive:
   - remove-operation: 'GetActiveSessions'
   - remove-operation: 'DisconnectActiveSessions'
   - remove-operation: 'VirtualNetworks_ListDdosProtectionStatus'
+  - remove-operation: 'NetworkSecurityPerimeterAssociations_Reconcile'
+  - remove-operation: 'NetworkSecurityPerimeterAccessRules_Reconcile'
+  - remove-operation: 'NetworkSecurityPerimeterOperationStatuses_Get'
   # This part is for generate partial class in network
   # these operations are renamed because their api-versions are different from others in the same operation group
   # - rename-operation:
@@ -598,6 +619,14 @@ directive:
       {
           delete $[path];
       }
+  # disable the flatten and add additional properties to its properties object
+  - from: loadBalancer.json
+    where: $.definitions
+    transform: >
+      $.LoadBalancingRule.properties.properties["x-ms-client-flatten"] = false;
+      $.LoadBalancingRulePropertiesFormat.additionalProperties = true;
+      $.InboundNatPool.properties.properties["x-ms-client-flatten"] = false;
+      $.InboundNatPoolPropertiesFormat.additionalProperties = true;
   # - from: vmssPublicIpAddress.json
   #   where: $.paths
   #   transform: >
@@ -627,4 +656,9 @@ directive:
   #         delete $[param];
   #     }
 
+  # Remove the format of id which break current type replacement logic, issue https://github.com/Azure/azure-sdk-for-net/issues/47589 opened to track this requirement.
+  - from: network.json
+    where: $.definitions
+    transform: >
+      delete $.CommonResource.properties.id.format;
 ```

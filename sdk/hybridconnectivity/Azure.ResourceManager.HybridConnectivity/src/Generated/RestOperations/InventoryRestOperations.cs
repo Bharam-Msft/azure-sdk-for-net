@@ -25,8 +25,8 @@ namespace Azure.ResourceManager.HybridConnectivity
         /// <summary> Initializes a new instance of InventoryRestOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="applicationId"> The application id to use for user agent. </param>
-        /// <param name="endpoint"> server parameter. </param>
-        /// <param name="apiVersion"> Api Version. </param>
+        /// <param name="endpoint"> Service host. </param>
+        /// <param name="apiVersion"> The API version to use for this operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="pipeline"/> or <paramref name="apiVersion"/> is null. </exception>
         public InventoryRestOperations(HttpPipeline pipeline, string applicationId, Uri endpoint = null, string apiVersion = default)
         {
@@ -34,6 +34,102 @@ namespace Azure.ResourceManager.HybridConnectivity
             _endpoint = endpoint ?? new Uri("https://management.azure.com");
             _apiVersion = apiVersion ?? "2024-12-01";
             _userAgent = new TelemetryDetails(GetType().Assembly, applicationId);
+        }
+
+        internal RequestUriBuilder CreateGetRequestUri(string resourceUri, string solutionConfiguration, string inventoryId)
+        {
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/", false);
+            uri.AppendPath(resourceUri, false);
+            uri.AppendPath("/providers/Microsoft.HybridConnectivity/solutionConfigurations/", false);
+            uri.AppendPath(solutionConfiguration, true);
+            uri.AppendPath("/inventory/", false);
+            uri.AppendPath(inventoryId, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            return uri;
+        }
+
+        internal HttpMessage CreateGetRequest(string resourceUri, string solutionConfiguration, string inventoryId)
+        {
+            var message = _pipeline.CreateMessage();
+            var request = message.Request;
+            request.Method = RequestMethod.Get;
+            var uri = new RawRequestUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/", false);
+            uri.AppendPath(resourceUri, false);
+            uri.AppendPath("/providers/Microsoft.HybridConnectivity/solutionConfigurations/", false);
+            uri.AppendPath(solutionConfiguration, true);
+            uri.AppendPath("/inventory/", false);
+            uri.AppendPath(inventoryId, true);
+            uri.AppendQuery("api-version", _apiVersion, true);
+            request.Uri = uri;
+            request.Headers.Add("Accept", "application/json");
+            _userAgent.Apply(message);
+            return message;
+        }
+
+        /// <summary> Get a InventoryResource. </summary>
+        /// <param name="resourceUri"> The fully qualified Azure Resource manager identifier of the resource. </param>
+        /// <param name="solutionConfiguration"> Represent Solution Configuration Resource. </param>
+        /// <param name="inventoryId"> Inventory resource. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/>, <paramref name="solutionConfiguration"/> or <paramref name="inventoryId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> or <paramref name="inventoryId"/> is an empty string, and was expected to be non-empty. </exception>
+        public async Task<Response<PublicCloudInventoryData>> GetAsync(string resourceUri, string solutionConfiguration, string inventoryId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(resourceUri, nameof(resourceUri));
+            Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
+            Argument.AssertNotNullOrEmpty(inventoryId, nameof(inventoryId));
+
+            using var message = CreateGetRequest(resourceUri, solutionConfiguration, inventoryId);
+            await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
+            switch (message.Response.Status)
+            {
+                case 200:
+                    {
+                        PublicCloudInventoryData value = default;
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions, cancellationToken).ConfigureAwait(false);
+                        value = PublicCloudInventoryData.DeserializePublicCloudInventoryData(document.RootElement);
+                        return Response.FromValue(value, message.Response);
+                    }
+                case 404:
+                    return Response.FromValue((PublicCloudInventoryData)null, message.Response);
+                default:
+                    throw new RequestFailedException(message.Response);
+            }
+        }
+
+        /// <summary> Get a InventoryResource. </summary>
+        /// <param name="resourceUri"> The fully qualified Azure Resource manager identifier of the resource. </param>
+        /// <param name="solutionConfiguration"> Represent Solution Configuration Resource. </param>
+        /// <param name="inventoryId"> Inventory resource. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/>, <paramref name="solutionConfiguration"/> or <paramref name="inventoryId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> or <paramref name="inventoryId"/> is an empty string, and was expected to be non-empty. </exception>
+        public Response<PublicCloudInventoryData> Get(string resourceUri, string solutionConfiguration, string inventoryId, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(resourceUri, nameof(resourceUri));
+            Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
+            Argument.AssertNotNullOrEmpty(inventoryId, nameof(inventoryId));
+
+            using var message = CreateGetRequest(resourceUri, solutionConfiguration, inventoryId);
+            _pipeline.Send(message, cancellationToken);
+            switch (message.Response.Status)
+            {
+                case 200:
+                    {
+                        PublicCloudInventoryData value = default;
+                        using var document = JsonDocument.Parse(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions);
+                        value = PublicCloudInventoryData.DeserializePublicCloudInventoryData(document.RootElement);
+                        return Response.FromValue(value, message.Response);
+                    }
+                case 404:
+                    return Response.FromValue((PublicCloudInventoryData)null, message.Response);
+                default:
+                    throw new RequestFailedException(message.Response);
+            }
         }
 
         internal RequestUriBuilder CreateListBySolutionConfigurationRequestUri(string resourceUri, string solutionConfiguration)
@@ -86,7 +182,7 @@ namespace Azure.ResourceManager.HybridConnectivity
                 case 200:
                     {
                         InventoryResourceListResult value = default;
-                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions, cancellationToken).ConfigureAwait(false);
                         value = InventoryResourceListResult.DeserializeInventoryResourceListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
@@ -113,106 +209,10 @@ namespace Azure.ResourceManager.HybridConnectivity
                 case 200:
                     {
                         InventoryResourceListResult value = default;
-                        using var document = JsonDocument.Parse(message.Response.ContentStream);
+                        using var document = JsonDocument.Parse(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions);
                         value = InventoryResourceListResult.DeserializeInventoryResourceListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
-                default:
-                    throw new RequestFailedException(message.Response);
-            }
-        }
-
-        internal RequestUriBuilder CreateGetRequestUri(string resourceUri, string solutionConfiguration, string inventoryId)
-        {
-            var uri = new RawRequestUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/", false);
-            uri.AppendPath(resourceUri, false);
-            uri.AppendPath("/providers/Microsoft.HybridConnectivity/solutionConfigurations/", false);
-            uri.AppendPath(solutionConfiguration, true);
-            uri.AppendPath("/inventory/", false);
-            uri.AppendPath(inventoryId, true);
-            uri.AppendQuery("api-version", _apiVersion, true);
-            return uri;
-        }
-
-        internal HttpMessage CreateGetRequest(string resourceUri, string solutionConfiguration, string inventoryId)
-        {
-            var message = _pipeline.CreateMessage();
-            var request = message.Request;
-            request.Method = RequestMethod.Get;
-            var uri = new RawRequestUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/", false);
-            uri.AppendPath(resourceUri, false);
-            uri.AppendPath("/providers/Microsoft.HybridConnectivity/solutionConfigurations/", false);
-            uri.AppendPath(solutionConfiguration, true);
-            uri.AppendPath("/inventory/", false);
-            uri.AppendPath(inventoryId, true);
-            uri.AppendQuery("api-version", _apiVersion, true);
-            request.Uri = uri;
-            request.Headers.Add("Accept", "application/json");
-            _userAgent.Apply(message);
-            return message;
-        }
-
-        /// <summary> Get a InventoryResource. </summary>
-        /// <param name="resourceUri"> The fully qualified Azure Resource manager identifier of the resource. </param>
-        /// <param name="solutionConfiguration"> Represent Solution Configuration Resource. </param>
-        /// <param name="inventoryId"> Inventory resource. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/>, <paramref name="solutionConfiguration"/> or <paramref name="inventoryId"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> or <paramref name="inventoryId"/> is an empty string, and was expected to be non-empty. </exception>
-        public async Task<Response<HybridConnectivityInventoryData>> GetAsync(string resourceUri, string solutionConfiguration, string inventoryId, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(resourceUri, nameof(resourceUri));
-            Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
-            Argument.AssertNotNullOrEmpty(inventoryId, nameof(inventoryId));
-
-            using var message = CreateGetRequest(resourceUri, solutionConfiguration, inventoryId);
-            await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
-            switch (message.Response.Status)
-            {
-                case 200:
-                    {
-                        HybridConnectivityInventoryData value = default;
-                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = HybridConnectivityInventoryData.DeserializeHybridConnectivityInventoryData(document.RootElement);
-                        return Response.FromValue(value, message.Response);
-                    }
-                case 404:
-                    return Response.FromValue((HybridConnectivityInventoryData)null, message.Response);
-                default:
-                    throw new RequestFailedException(message.Response);
-            }
-        }
-
-        /// <summary> Get a InventoryResource. </summary>
-        /// <param name="resourceUri"> The fully qualified Azure Resource manager identifier of the resource. </param>
-        /// <param name="solutionConfiguration"> Represent Solution Configuration Resource. </param>
-        /// <param name="inventoryId"> Inventory resource. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="resourceUri"/>, <paramref name="solutionConfiguration"/> or <paramref name="inventoryId"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="solutionConfiguration"/> or <paramref name="inventoryId"/> is an empty string, and was expected to be non-empty. </exception>
-        public Response<HybridConnectivityInventoryData> Get(string resourceUri, string solutionConfiguration, string inventoryId, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(resourceUri, nameof(resourceUri));
-            Argument.AssertNotNullOrEmpty(solutionConfiguration, nameof(solutionConfiguration));
-            Argument.AssertNotNullOrEmpty(inventoryId, nameof(inventoryId));
-
-            using var message = CreateGetRequest(resourceUri, solutionConfiguration, inventoryId);
-            _pipeline.Send(message, cancellationToken);
-            switch (message.Response.Status)
-            {
-                case 200:
-                    {
-                        HybridConnectivityInventoryData value = default;
-                        using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = HybridConnectivityInventoryData.DeserializeHybridConnectivityInventoryData(document.RootElement);
-                        return Response.FromValue(value, message.Response);
-                    }
-                case 404:
-                    return Response.FromValue((HybridConnectivityInventoryData)null, message.Response);
                 default:
                     throw new RequestFailedException(message.Response);
             }
@@ -260,7 +260,7 @@ namespace Azure.ResourceManager.HybridConnectivity
                 case 200:
                     {
                         InventoryResourceListResult value = default;
-                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions, cancellationToken).ConfigureAwait(false);
                         value = InventoryResourceListResult.DeserializeInventoryResourceListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }
@@ -289,7 +289,7 @@ namespace Azure.ResourceManager.HybridConnectivity
                 case 200:
                     {
                         InventoryResourceListResult value = default;
-                        using var document = JsonDocument.Parse(message.Response.ContentStream);
+                        using var document = JsonDocument.Parse(message.Response.ContentStream, ModelSerializationExtensions.JsonDocumentOptions);
                         value = InventoryResourceListResult.DeserializeInventoryResourceListResult(document.RootElement);
                         return Response.FromValue(value, message.Response);
                     }

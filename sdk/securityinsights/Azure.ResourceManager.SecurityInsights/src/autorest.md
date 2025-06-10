@@ -13,7 +13,7 @@ tag: package-preview-2024-01
 output-folder: $(this-folder)/Generated
 clear-output-folder: true
 sample-gen:
-  output-folder: $(this-folder)/../samples/Generated
+  output-folder: $(this-folder)/../tests/Generated
   clear-output-folder: true
   sample: false # Disable generate samples due to https://github.com/Azure/azure-sdk-for-net/issues/45877
   skipped-operations:
@@ -398,6 +398,7 @@ rename-mapping:
   TriggerOperator: SecurityInsightsAlertRuleTriggerOperator
   Ueba: UebaSettings
   UrlEntity: SecurityInsightsUriEntity
+  UrlEntity.properties.url: UriString
   UserInfo: SecurityInsightsUserInfo
   ValidationError: SecurityInsightsFileValidationError
   Version: SourceControlVersion
@@ -511,7 +512,7 @@ directive:
     where: $.definitions
     transform: >
       $.Query['x-ms-client-name'] = 'ThreatIntelligenceQuery';
-      $.UserInfo['x-ms-client-name'] = 'ThreatIntelligenceUserInfo';   
+      $.UserInfo['x-ms-client-name'] = 'ThreatIntelligenceUserInfo';
   - from: ThreatIntelligenceCount.json
     where: $.definitions
     transform: >

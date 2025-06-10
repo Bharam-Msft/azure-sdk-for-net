@@ -48,14 +48,13 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
         /// <summary> Initializes a new instance of <see cref="SolutionConfigurationPropertiesUpdate"/>. </summary>
         public SolutionConfigurationPropertiesUpdate()
         {
-            SolutionSettings = new ChangeTrackingDictionary<string, string>();
         }
 
         /// <summary> Initializes a new instance of <see cref="SolutionConfigurationPropertiesUpdate"/>. </summary>
         /// <param name="solutionType"> The type of the solution. </param>
         /// <param name="solutionSettings"> Solution settings. </param>
         /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
-        internal SolutionConfigurationPropertiesUpdate(string solutionType, IDictionary<string, string> solutionSettings, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal SolutionConfigurationPropertiesUpdate(string solutionType, PublicCloudConnectorSolutionSettings solutionSettings, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             SolutionType = solutionType;
             SolutionSettings = solutionSettings;
@@ -65,6 +64,6 @@ namespace Azure.ResourceManager.HybridConnectivity.Models
         /// <summary> The type of the solution. </summary>
         public string SolutionType { get; set; }
         /// <summary> Solution settings. </summary>
-        public IDictionary<string, string> SolutionSettings { get; }
+        public PublicCloudConnectorSolutionSettings SolutionSettings { get; set; }
     }
 }
